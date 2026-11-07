@@ -1,15 +1,13 @@
-package com.bharataiscanner.app
+ package com.bharataiscanner.app
 
 import android.app.Activity
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
-import android.content.SharedPreferences
 import android.widget.Toast
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Color
-import java.io.FileOutputStream
 import androidx.biometric.BiometricPrompt
 import androidx.core.content.ContextCompat
 import com.google.android.gms.ads.AdRequest
@@ -27,7 +25,6 @@ import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.fragment.app.FragmentActivity
-import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.result.IntentSenderRequest
@@ -61,7 +58,6 @@ class MainActivity : FragmentActivity() {
     }
 }
 
-
 @Composable
 private fun BharatScannerIntro() {
     val navy = androidx.compose.ui.graphics.Color(0xFF071A35)
@@ -85,7 +81,6 @@ private fun BharatScannerIntro() {
                     .background(androidx.compose.ui.graphics.Color.White.copy(alpha = 0.10f), RoundedCornerShape(30.dp)),
                 contentAlignment = Alignment.Center
             ) {
-                // A simple scan-sheet mark that does not need extra image assets.
                 Box(
                     modifier = Modifier
                         .size(width = 62.dp, height = 76.dp)
@@ -142,7 +137,6 @@ fun BharatScannerApp() {
     var folder by remember { mutableStateOf("All") }
     var ocrText by remember { mutableStateOf("") }
     var ocrBusy by remember { mutableStateOf(false) }
-    var securityLocked by remember { mutableStateOf(false) }
 
     val scanner = remember {
         val options = GmsDocumentScannerOptions.Builder()
@@ -237,24 +231,25 @@ fun BharatScannerApp() {
                 }
             }
         }) { p ->
-            when (selected) {
-                "Documents" -> DocumentsScreen(documents)
-                "Tools" -> ToolsScreen(onScan = { startScanner() }, onOcr = { imagePicker.launch("image/*") }, ocrBusy = ocrBusy, ocrText = ocrText)
-                "Settings" -> SettingsScreen(
-                    onBiometric = { showBiometric(currentActivity()) },
-                    pinEnabled = pinEnabled,
-                    onPinChange = { enabled ->
-                        pinEnabled = enabled
-                        prefs.edit().putBoolean("pin_enabled", enabled).apply()
-                        unlocked = !enabled
-                    }
-                )
-                else -> HomeScreen(onScan = { startScanner() }, documents = documents)
+            Box(Modifier.padding(p)) {
+                when (selected) {
+                    "Documents" -> DocumentsScreen(documents)
+                    "Tools" -> ToolsScreen(onScan = { startScanner() }, onOcr = { imagePicker.launch("image/*") }, ocrBusy = ocrBusy, ocrText = ocrText)
+                    "Settings" -> SettingsScreen(
+                        onBiometric = { showBiometric(currentActivity()) },
+                        pinEnabled = pinEnabled,
+                        onPinChange = { enabled ->
+                            pinEnabled = enabled
+                            prefs.edit().putBoolean("pin_enabled", enabled).apply()
+                            unlocked = !enabled
+                        }
+                    )
+                    else -> HomeScreen(onScan = { startScanner() }, documents = documents)
+                }
             }
         }
     }
 }
-
 
 @Composable
 private fun OnboardingScreen(onDone: () -> Unit) {
@@ -269,7 +264,7 @@ private fun OnboardingScreen(onDone: () -> Unit) {
 • Search, folders और sharing
 • Ads-only मॉडल — कोई Premium subscription नहीं""")
         Spacer(Modifier.height(28.dp))
-        Button(onClick = onDone, Modifier.fillMaxWidth().height(54.dp)) { Text("शुरू करें") }
+        Button(onClick = onDone, modifier = Modifier.fillMaxWidth().height(54.dp)) { Text("शुरू करें") }
     }
 }
 
@@ -305,13 +300,13 @@ private fun HomeScreen(onScan: () -> Unit, documents: List<DocumentRecord>) {
         Spacer(Modifier.height(8.dp))
         AdsBanner()
         Spacer(Modifier.height(20.dp))
-        Button(onClick = onScan, Modifier.fillMaxWidth().height(56.dp)) { Text("📷  दस्तावेज़ स्कैन करें") }
+        Button(onClick = onScan, modifier = Modifier.fillMaxWidth().height(56.dp)) { Text("📷  दस्तावेज़ स्कैन करें") }
         Spacer(Modifier.height(20.dp))
         Text("हाल के दस्तावेज़", style = MaterialTheme.typography.titleLarge)
         Spacer(Modifier.height(8.dp))
         if (documents.isEmpty()) Text("अभी कोई दस्तावेज़ सेव नहीं है।")
         documents.take(5).forEach { doc ->
-            OutlinedButton(onClick = { openUri(Uri.parse(doc.uri), "application/pdf") }, Modifier.fillMaxWidth().padding(vertical = 4.dp)) {
+            OutlinedButton(onClick = { openUri(Uri.parse(doc.uri), "application/pdf") }, modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp)) {
                 Text("📄 ${doc.name}")
             }
         }
@@ -342,7 +337,7 @@ private fun DocumentsScreen(initial: List<DocumentRecord>) {
         if (filtered.isEmpty()) Text("कोई दस्तावेज़ नहीं मिला।")
         LazyColumn {
             items(filtered) { doc ->
-                Card(Modifier.fillMaxWidth().padding(vertical = 5.dp)) {
+                Card(modifier = Modifier.fillMaxWidth().padding(vertical = 5.dp)) {
                     Column(Modifier.padding(12.dp)) {
                         Text(doc.name, style = MaterialTheme.typography.titleMedium)
                         Text("📁 ${doc.folder}", style = MaterialTheme.typography.labelMedium)
@@ -484,7 +479,7 @@ private fun ToolsScreen(onScan: () -> Unit, onOcr: () -> Unit, ocrBusy: Boolean,
                         name.contains("Editor") -> openPdf.launch(arrayOf("application/pdf"))
                         name.contains("Sign") -> showSign = true
                     }
-                }, Modifier.height(70.dp)) { Text(name) }
+                }, modifier = Modifier.height(70.dp)) { Text(name) }
             }
         }
         if (ocrText.isNotBlank()) {
@@ -579,7 +574,7 @@ private fun PdfEditorScreen(
                 }
             }
         }
-        Button(onClick = onSave, enabled = pages.isNotEmpty() && !busy, Modifier.fillMaxWidth().height(54.dp)) {
+        Button(onClick = onSave, enabled = pages.isNotEmpty() && !busy, modifier = Modifier.fillMaxWidth().height(54.dp)) {
             Text(if (busy) "PDF तैयार हो रहा है…" else "💾 नया PDF सेव करें")
         }
     }
@@ -592,7 +587,7 @@ private fun SettingsScreen(onBiometric: () -> Unit, pinEnabled: Boolean, onPinCh
         Spacer(Modifier.height(14.dp))
         Text("भाषा: हिंदी / English")
         Spacer(Modifier.height(12.dp))
-        OutlinedButton(onClick = onBiometric, Modifier.fillMaxWidth()) { Text("🔐 Biometric सुरक्षा जांचें") }
+        OutlinedButton(onClick = onBiometric, modifier = Modifier.fillMaxWidth()) { Text("🔐 Biometric सुरक्षा जांचें") }
         Spacer(Modifier.height(8.dp))
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
             Text("App Lock / PIN")
@@ -654,7 +649,7 @@ private fun openUri(uri: Uri, type: String) {
     currentActivity().startActivity(Intent.createChooser(intent, "PDF खोलें"))
 }
 
-private fun showBiometric(activity: Activity) {
+private fun showBiometric(activity: FragmentActivity) {
     val executor = ContextCompat.getMainExecutor(activity)
     val prompt = BiometricPrompt(activity, executor, object : BiometricPrompt.AuthenticationCallback() {
         override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) {
@@ -667,7 +662,6 @@ private fun showBiometric(activity: Activity) {
     val info = BiometricPrompt.PromptInfo.Builder().setTitle("भारत AI Scanner सुरक्षा").setSubtitle("दस्तावेज़ खोलने के लिए पहचान सत्यापित करें").setNegativeButtonText("रद्द करें").build()
     prompt.authenticate(info)
 }
-
 
 private fun shareUri(uri: Uri) {
     val intent = Intent(Intent.ACTION_SEND).apply { type = "application/pdf"; putExtra(Intent.EXTRA_STREAM, uri); addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION) }
@@ -687,6 +681,7 @@ private fun printUri(uri: Uri) {
     }, null)
 }
 
-private fun currentActivity(): Activity = ActivityHolder.activity
-private object ActivityHolder { lateinit var activity: Activity }
-private fun ComponentActivity.registerActivityHolder() { ActivityHolder.activity = this }
+// सुधारा गया: FragmentActivity का सही संदर्भ
+private fun currentActivity(): FragmentActivity = ActivityHolder.activity
+private object ActivityHolder { lateinit var activity: FragmentActivity }
+private fun FragmentActivity.registerActivityHolder() { ActivityHolder.activity = this }
