@@ -2,14 +2,10 @@ package com.bharataiscanner.app
 
 import android.content.Context
 import android.graphics.Bitmap
-import android.graphics.Canvas
 import android.graphics.Matrix
 import android.graphics.pdf.PdfDocument
 import android.graphics.pdf.PdfRenderer
 import android.net.Uri
-import android.os.ParcelFileDescriptor
-import java.io.File
-import java.io.FileOutputStream
 
 data class PdfPageRef(val sourceUri: Uri, val sourcePage: Int, val rotation: Int = 0)
 
@@ -38,7 +34,7 @@ object PdfEditor {
                 val bitmap = renderPage(context, ref, 1400)
                 val pageInfo = PdfDocument.PageInfo.Builder(bitmap.width, bitmap.height, index + 1).create()
                 val page = document.startPage(pageInfo)
-                Canvas(page.canvas).drawBitmap(bitmap, 0f, 0f, null)
+                page.canvas.drawBitmap(bitmap, 0f, 0f, null)
                 document.finishPage(page)
                 bitmap.recycle()
             }
