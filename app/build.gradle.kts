@@ -1,4 +1,4 @@
-plugins {
+ plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
     id("org.jetbrains.kotlin.plugin.compose")
@@ -7,6 +7,7 @@ plugins {
 android {
     namespace = "com.bharataiscanner.app"
     compileSdk = 35
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
@@ -18,6 +19,10 @@ android {
         targetSdk = 35
         versionCode = 9
         versionName = "1.4.0"
+    }
+
+    buildFeatures {
+        compose = true
     }
 }
 
