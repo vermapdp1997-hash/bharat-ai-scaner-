@@ -1,4 +1,4 @@
-package com.bharataiscanner.app
+ package com.bharataiscanner.app
 
 import android.content.Context
 import android.graphics.Bitmap
